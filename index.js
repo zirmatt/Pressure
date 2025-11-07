@@ -54,15 +54,15 @@ client.on('interactionCreate', async interaction => {
             const result = rollDiceHelper(diceString, advantage);
 
             const rollEmbed = new EmbedBuilder()
-                .setColor(0x5865F2) 
-                .setTitle(result.title) 
-                .setDescription(result.description)
-                .addFields(
-                    // โชว์ผลรวมตัวใหญ่ๆ
-                    { name: 'รวม', value: `**${result.total}**` }
+                .setColor(0x5865F2)
+                .setTitle(result.title)
+                // (จุดที่ 1: แก้ไขบรรทัดนี้)
+                .setDescription(
+                    `${result.description}\nรวม: **${result.total}**` // <-- เอา total มาต่อท้ายตรงนี้
                 )
-                .setTimestamp() // ใส่เวลาที่ทอย
-                .setFooter({ text: `ทอยโดย ${interaction.user.name}` }); 
+                // (จุดที่ 2: ลบบรรทัด .addFields() ทิ้งไปเลย)
+                .setTimestamp()
+                .setFooter({ text: `ทอยโดย ${interaction.member.displayName}` });
 
             await interaction.reply({
                 content: `<@${interaction.user.id}>`,
@@ -85,7 +85,7 @@ function rollDiceHelper(diceString, advantage) {
     const match = diceString.toLowerCase().match(regex);
 
     if (!match) {
-        throw new Error("รูปแบบผิดพลาดครับ ลอง `1d20` หรือ `2d6+3`");
+        throw new Error("รูปแบบการทอยของคุณผิดพลาดค่ะ ลอง `1d20` หรือ `2d6+3`");
     }
 
     const numDice = parseInt(match[1]);
@@ -94,7 +94,7 @@ function rollDiceHelper(diceString, advantage) {
     const modifierValue = match[4] ? parseInt(match[4]) : 0;
 
     if (numDice > 100 || diceSides > 1000) {
-        throw new Error("ทอยเต๋าเยอะ/ใหญ่เกินไปครับ (สูงสุด 100d1000)");
+        throw new Error("คุณทอยเต๋าเยอะเกินไปค่ะ (สูงสุด 100d1000)");
     }
 
     let total = 0;
@@ -117,8 +117,8 @@ function rollDiceHelper(diceString, advantage) {
         const advText = (advantage === 'adv') ? "(Adv)" : "(Dis)";
         
         return {
-            title: `<:dice:1436248045766578320> ผลการทอย ${advText} ${diceString}`,
-            description: `ผลลัพธ์: \`${roll1}, ${roll2}\` (เลือก: **${chosenRoll}**) ${modifierText}`,
+            title: `<:tpdice:1436248045766578320> ผลการทอย ${advText} ${diceString}`,
+            description: `ผลลัพธ์: ${roll1}, ${roll2} (เลือก: **${chosenRoll}**) ${modifierText}`,
             total: `${total}`
         };
 
