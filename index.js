@@ -16,7 +16,7 @@ if (!BOT_TOKEN) {
 }
 
 client.once('ready', () => {
-    console.log(`บอทออนไลน์แล้ว`);
+    console.log(`บอท ${client.user.tag} ออนไลน์แล้ว! (พร้อมรับ Slash Commands)`);
 });
 
 // =======================================================
@@ -27,6 +27,7 @@ client.on('interactionCreate', async interaction => {
 
     const { commandName } = interaction;
 
+    // ----- (อัปเกรด!) คำสั่ง /roll (แบบ Text) -----
     if (commandName === 'roll') {
         const diceString = interaction.options.getString('dice');
         const advantage = interaction.options.getString('advantage'); 
@@ -35,10 +36,9 @@ client.on('interactionCreate', async interaction => {
             // Helper ยังทำงานเหมือนเดิม (คืนค่าเป็น Object)
             const result = rollDiceHelper(diceString, advantage);
 
-            // (ใหม่!) สร้างข้อความ Text ธรรมดาที่แก้ไขง่าย
             const replyLines = [
                 `-# _ _`,
-                `-# ผลการทอย <@${interaction.user.id}>`
+                `-# ผลการทอย <@${interaction.user.id}>`,
                 `→ ${result.description}`,
                 `# <a:tpdice:1436248045766578320> ทอยได้ \`${result.total}\``,
                 `-# _ _`
@@ -99,8 +99,7 @@ function rollDiceHelper(diceString, advantage) {
         const advText = (advantage === 'adv') ? "(Adv)" : "(Dis)";
         
         return {
-            title: `-# ผลทอย ${diceString} ${advText}`,
-            description: `**ผลการทอย** : ${roll1}, ${roll2} (เลือก: **${chosenRoll}**) ${modifierText}`,
+            description: `${roll1}, ${roll2} (เลือก: **${chosenRoll}**) ${modifierText}`,
             total: `${total}`
         };
 
@@ -119,8 +118,7 @@ function rollDiceHelper(diceString, advantage) {
         const rollsText = (numDice > 1) ? `[${rolls.join(', ')}]` : `${rolls[0]}`; 
 
         return {
-            title: `<a:tpdice:1436248045766578320> ทอย ${diceString}`,
-            description: `**ผลการทอย** : ${rollsText}${modifierText}`,
+            description: `${rollsText}${modifierText}`,
             total: `${total}`
         };
     }
