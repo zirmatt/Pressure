@@ -1,4 +1,5 @@
 const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const client = new Client({
     intents: [
@@ -19,24 +20,9 @@ client.once('ready', () => {
     console.log(`บอท ${client.user.tag} ออนไลน์แล้ว! (พร้อมรับ Slash Commands)`);
 });
 
-// =======================================================
-// ส่วนรับคำสั่ง !ping !pressure (แบบเก่า)
-// =======================================================
-client.on('messageCreate', message => {
-    if (message.author.bot) return;
-
-    // เรายังเก็บคำสั่งเก่าไว้ เผื่ออยากใช้
-    if (message.content === '!ping') {
-        message.reply('Pong! (จาก !ping)');
-    }
-
-    if (message.content === '!pressure') {
-        message.reply('กิจกรรม "The Pressure" กำลังจะเริ่มขึ้น! (รันบน Railway 24/7)');
-    }
-});
 
 // =======================================================
-// (ใหม่!) ส่วนรับคำสั่ง / (Slash Commands)
+// ส่วนรับคำสั่ง / (Slash Commands)
 // =======================================================
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
@@ -54,9 +40,27 @@ client.on('interactionCreate', async interaction => {
         const advantage = interaction.options.getString('advantage'); // จะเป็น 'adv', 'dis', หรือ null
 
         try {
-            // เราจะส่งไปให้ฟังก์ชันลูกเต๋าจัดการ
+            // 1. ให้ Helper ไปคำนวณมาก่อน (ตอนนี้มันจะคืนค่าเป็น Object)
             const result = rollDiceHelper(diceString, advantage);
-            await interaction.reply(result);
+
+            // 2. (ใหม่!) สร้าง Embed
+            const rollEmbed = new EmbedBuilder()
+                .setColor(0x5865F2) // สีน้ำเงิน Discord
+                .setTitle(result.title) // '🎲 ทอย 1d20'
+                .setDescription(result.description) // 'ผลลัพธ์: [20]'
+                .addFields(
+                    // โชว์ผลรวมตัวใหญ่ๆ
+                    { name: 'รวม', value: `**${result.total}**` }
+                )
+                .setTimestamp() // ใส่เวลาที่ทอย
+                .setFooter({ text: `ทอยโดย ${interaction.user.username}` }); // ใส่ชื่อคนทอยที่ท้ายกล่อง
+
+            // 3. (ใหม่!) ตอบกลับตามที่คุณ Pao ขอ
+            await interaction.reply({
+                content: `<@${interaction.user.id}>`, // @uesr คนที่ใช้คำสั่ง @ข้างนอก embed
+                embeds: [rollEmbed]               // [ส่วนของ embed]
+            });
+
         } catch (e) {
             // ถ้าใส่มามั่วๆ (เช่น 1d20adv)
             await interaction.reply({ content: `Error: ${e.message}`, ephemeral: true });
@@ -66,14 +70,9 @@ client.on('interactionCreate', async interaction => {
 
 
 // =======================================================
-// (ใหม่!) ฟังก์ชันสำหรับทอยลูกเต๋า
+// (อัปเกรด!) ฟังก์ชันสำหรับทอยลูกเต๋า (ตอนนี้จะ return เป็น Object)
 // =======================================================
 function rollDiceHelper(diceString, advantage) {
-    // Regex นี้จะแยก "2d10+5"
-    // group 1: 2 (จำนวนลูก)
-    // group 2: 10 (หน้าเต๋า)
-    // group 3: + (เครื่องหมาย)
-    // group 4: 5 (เลขบวก/ลบ)
     const regex = /(\d+)d(\d+)(?:\s*([+-])\s*(\d+))?/;
     const match = diceString.toLowerCase().match(regex);
 
@@ -92,35 +91,31 @@ function rollDiceHelper(diceString, advantage) {
 
     let total = 0;
     let rolls = [];
-
-    // ฟังก์ชันทอย 1 ครั้ง
     const singleRoll = () => Math.floor(Math.random() * diceSides) + 1;
 
-    // กรณีที่ 1: ทอยแบบ Adv/Dis (ต้องทอยลูกเดียวเท่านั้น)
+    // กรณีที่ 1: ทอยแบบ Adv/Dis
     if (advantage && numDice === 1 && (advantage === 'adv' || advantage === 'dis')) {
         const roll1 = singleRoll();
         const roll2 = singleRoll();
         rolls = [roll1, roll2];
-
-        let chosenRoll;
-        if (advantage === 'adv') {
-            chosenRoll = Math.max(roll1, roll2);
-        } else { // 'dis'
-            chosenRoll = Math.min(roll1, roll2);
-        }
-        total = chosenRoll; // เอาลูกที่เลือกมาคิด
-
-        // บวก/ลบ เลข Modifier
+        
+        let chosenRoll = (advantage === 'adv') ? Math.max(roll1, roll2) : Math.min(roll1, roll2);
+        total = chosenRoll; 
+        
         if (modifierSign === '+') total += modifierValue;
         if (modifierSign === '-') total -= modifierValue;
 
         const modifierText = modifierValue ? ` ${modifierSign} ${modifierValue}` : "";
         const advText = (advantage === 'adv') ? "Advantage" : "Disadvantage";
+        
+        // (ใหม่!) คืนค่าเป็น Object
+        return {
+            title: `🎲 ทอย ${advText} ${diceString}`,
+            description: `ผลลัพธ์: [${roll1}, ${roll2}] (เลือก: ${chosenRoll})${modifierText}`,
+            total: `${total}` // แปลงเป็น String
+        };
 
-        // ตอบกลับ
-        return `**ทอย ${advText} ${diceString}**\nผลลัพธ์: [${roll1}, ${roll2}] (เลือก: ${chosenRoll})${modifierText}\n**รวม: ${total}**`;
-
-    // กรณีที่ 2: ทอยปกติ (หลายลูก หรือลูกเดียวแต่ไม่ Adv/Dis)
+    // กรณีที่ 2: ทอยปกติ
     } else {
         for (let i = 0; i < numDice; i++) {
             const roll = singleRoll();
@@ -128,18 +123,20 @@ function rollDiceHelper(diceString, advantage) {
             total += roll;
         }
 
-        // บวก/ลบ เลข Modifier
         if (modifierSign === '+') total += modifierValue;
         if (modifierSign === '-') total -= modifierValue;
 
         const modifierText = modifierValue ? ` ${modifierSign} ${modifierValue}` : "";
-        // ถ้าทอยลูกเดียว ไม่ต้องโชว์ [20]
-        const rollsText = (numDice > 1) ? `[${rolls.join(', ')}] ` : "";
+        const rollsText = (numDice > 1) ? `[${rolls.join(', ')}]` : `ผล: ${rolls[0]}`; // ถ้าลูกเดียวโชว์แค่เลข
 
-        // ตอบกลับ
-        return `**ทอย ${diceString}**\nผลลัพธ์: ${rollsText}${modifierText}\n**รวม: ${total}**`;
+        // (ใหม่!) คืนค่าเป็น Object
+        return {
+            title: `🎲 ทอย ${diceString}`,
+            description: `รายละเอียด: ${rollsText}${modifierText}`,
+            total: `${total}` // แปลงเป็น String
+        };
     }
 }
 
-// ล็อกอินเข้า Discord (ต้องอยู่บรรทัดท้ายๆ)
+// ล็อกอินเข้า Discord
 client.login(BOT_TOKEN);
