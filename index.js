@@ -65,7 +65,7 @@ client.on('interactionCreate', async interaction => {
                 .setFooter({ text: `ทอยโดย ${interaction.member.displayName}` });
 
             await interaction.reply({
-                content: `<:tpdice:1436248045766578320> <@${interaction.user.id}>`,
+                content: `<@${interaction.user.id}>`,
                 embeds: [rollEmbed]
             });
 
