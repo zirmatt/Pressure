@@ -58,7 +58,7 @@ client.on('interactionCreate', async interaction => {
                 .setTitle(result.title)
                 // (จุดที่ 1: แก้ไขบรรทัดนี้)
                 .setDescription(
-                    `${result.description}\nรวม: **${result.total}**` // <-- เอา total มาต่อท้ายตรงนี้
+                    `${result.description}\n \`\`\`**${result.total}**\`\`\` ` // <-- เอา total มาต่อท้ายตรงนี้
                 )
                 // (จุดที่ 2: ลบบรรทัด .addFields() ทิ้งไปเลย)
                 .setTimestamp()
