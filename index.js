@@ -134,12 +134,12 @@ function rollDiceHelper(diceString, advantage) {
         if (modifierSign === '-') total -= modifierValue;
 
         const modifierText = modifierValue ? ` ${modifierSign} ${modifierValue}` : "";
-        const rollsText = (numDice > 1) ? `[${rolls.join(', ')}]` : `ผล: ${rolls[0]}`; // ถ้าลูกเดียวโชว์แค่เลข
+        const rollsText = (numDice > 1) ? `[${rolls.join(', ')}]` : `${rolls[0]}`; 
 
         // (ใหม่!) คืนค่าเป็น Object
         return {
             title: `<a:tpdice:1436248045766578320> ทอย ${diceString}`,
-            description: `รายละเอียด: ${rollsText}${modifierText}`,
+            description: `ผลการทอย: ${rollsText}${modifierText}`,
             total: `${total}` // แปลงเป็น String
         };
     }
