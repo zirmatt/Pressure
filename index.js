@@ -1,5 +1,4 @@
-// (ใหม่!) เพิ่ม EmbedBuilder เข้ามา
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
     intents: [
@@ -17,20 +16,7 @@ if (!BOT_TOKEN) {
 }
 
 client.once('ready', () => {
-    console.log(`บอท ${client.user.tag} ออนไลน์แล้ว! (พร้อมรับ Slash Commands)`);
-});
-
-// =======================================================
-// ส่วนรับคำสั่ง !ping !pressure (แบบเก่า)
-// =======================================================
-client.on('messageCreate', message => {
-    if (message.author.bot) return;
-    if (message.content === '!ping') {
-        message.reply('Pong! (จาก !ping)');
-    }
-    if (message.content === '!pressure') {
-        message.reply('กิจกรรม "The Pressure" กำลังจะเริ่มขึ้น! (รันบน Railway 24/7)');
-    }
+    console.log(`บอทออนไลน์แล้ว`);
 });
 
 // =======================================================
@@ -41,36 +27,31 @@ client.on('interactionCreate', async interaction => {
 
     const { commandName } = interaction;
 
-    // ----- คำสั่ง /ping -----
-    if (commandName === 'ping') {
-        await interaction.reply('Pong! (จาก /ping)');
-    }
-
     if (commandName === 'roll') {
         const diceString = interaction.options.getString('dice');
         const advantage = interaction.options.getString('advantage'); 
 
         try {
+            // Helper ยังทำงานเหมือนเดิม (คืนค่าเป็น Object)
             const result = rollDiceHelper(diceString, advantage);
 
-            const rollEmbed = new EmbedBuilder()
-                .setColor(0x5865F2)
-                .setTitle(result.title)
-                // (จุดที่ 1: แก้ไขบรรทัดนี้)
-                .setDescription(
-                    `${result.description}\n\n ผลลัพธ์ \`\`\`${result.total}\`\`\` ` // <-- เอา total มาต่อท้ายตรงนี้
-                )
-                // (จุดที่ 2: ลบบรรทัด .addFields() ทิ้งไปเลย)
-                .setTimestamp()
-                .setFooter({ text: `ทอยโดย ${interaction.member.displayName}` });
+            // (ใหม่!) สร้างข้อความ Text ธรรมดาที่แก้ไขง่าย
+            const replyLines = [
+                `<@${interaction.user.id}> ทอยโดย ${interaction.member.displayName}:`,
+                `> ${result.title}`,
+                `> ${result.description}`,
+                `> **ผลลัพธ์: \`${result.total}\`**`
+            ];
 
+            // รวมทุกบรรทัด (ใช้ .join('\n') เพื่อขึ้นบรรทัดใหม่)
+            const replyText = replyLines.join('\n');
+
+            // ตอบกลับเป็น Text ธรรมดา (ไม่มี Embed)
             await interaction.reply({
-                content: `<@${interaction.user.id}>`,
-                embeds: [rollEmbed]
+                content: replyText
             });
 
         } catch (e) {
-            // ถ้า Error ก็ตอบกลับไปแบบลับๆ (ephemeral)
             await interaction.reply({ content: `Error: ${e.message}`, ephemeral: true });
         }
     }
@@ -78,7 +59,7 @@ client.on('interactionCreate', async interaction => {
 
 
 // =======================================================
-// (อัปเกรด!) ฟังก์ชันสำหรับทอยลูกเต๋า (ตอนนี้จะ return เป็น Object)
+// (ฟังก์ชัน rollDiceHelper - ไม่ต้องแก้ไข)
 // =======================================================
 function rollDiceHelper(diceString, advantage) {
     const regex = /(\d+)d(\d+)(?:\s*([+-])\s*(\d+))?/;
@@ -118,7 +99,7 @@ function rollDiceHelper(diceString, advantage) {
         
         return {
             title: `<a:tpdice:1436248045766578320> ทอย ${diceString} ${advText}`,
-            description: `ผลการทอย : ${roll1}, ${roll2} (เลือก: **${chosenRoll}**) ${modifierText}`,
+            description: `**ผลการทอย** : ${roll1}, ${roll2} (เลือก: **${chosenRoll}**) ${modifierText}`,
             total: `${total}`
         };
 
@@ -136,11 +117,10 @@ function rollDiceHelper(diceString, advantage) {
         const modifierText = modifierValue ? ` ${modifierSign} ${modifierValue}` : "";
         const rollsText = (numDice > 1) ? `[${rolls.join(', ')}]` : `${rolls[0]}`; 
 
-        // (ใหม่!) คืนค่าเป็น Object
         return {
             title: `<a:tpdice:1436248045766578320> ทอย ${diceString}`,
-            description: `ผลการทอย : ${rollsText}${modifierText}`,
-            total: `${total}` // แปลงเป็น String
+            description: `**ผลการทอย** : ${rollsText}${modifierText}`,
+            total: `${total}`
         };
     }
 }

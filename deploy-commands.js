@@ -17,12 +17,7 @@ const commands = [
                 .addChoices(
                     { name: 'Advantage (adv)', value: 'adv' },
                     { name: 'Disadvantage (dis)', value: 'dis' }
-                )),
-
-    // --- (แถม) แปลง !ping เป็น /ping ---
-    new SlashCommandBuilder()
-        .setName('ping')
-        .setDescription('Replies with Pong!'),
+                ))
 ]
     .map(command => command.toJSON());
 
