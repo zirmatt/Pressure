@@ -46,31 +46,27 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply('Pong! (จาก /ping)');
     }
 
-    // ----- (อัปเกรด!) คำสั่ง /roll -----
     if (commandName === 'roll') {
         const diceString = interaction.options.getString('dice');
-        const advantage = interaction.options.getString('advantage'); // 'adv', 'dis', หรือ null
+        const advantage = interaction.options.getString('advantage'); 
 
         try {
-            // 1. ให้ Helper ไปคำนวณมาก่อน (ตอนนี้มันจะคืนค่าเป็น Object)
             const result = rollDiceHelper(diceString, advantage);
 
-            // 2. (ใหม่!) สร้าง Embed
             const rollEmbed = new EmbedBuilder()
-                .setColor(0x5865F2) // สีน้ำเงิน Discord
-                .setTitle(result.title) // '🎲 ทอย 1d20'
-                .setDescription(result.description) // 'ผลลัพธ์: [20]'
+                .setColor(0x5865F2) 
+                .setTitle(result.title) 
+                .setDescription(result.description)
                 .addFields(
                     // โชว์ผลรวมตัวใหญ่ๆ
                     { name: 'รวม', value: `**${result.total}**` }
                 )
                 .setTimestamp() // ใส่เวลาที่ทอย
-                .setFooter({ text: `ทอยโดย ${interaction.user.username}` }); // ใส่ชื่อคนทอยที่ท้ายกล่อง
+                .setFooter({ text: `ทอยโดย ${interaction.user.name}` }); 
 
-            // 3. (ใหม่!) ตอบกลับตามที่คุณ Pao ขอ
             await interaction.reply({
-                content: `<@${interaction.user.id}>`, // @uesr คนที่ใช้คำสั่ง @ข้างนอก embed
-                embeds: [rollEmbed]               // [ส่วนของ embed]
+                content: `<@${interaction.user.id}>`,
+                embeds: [rollEmbed]
             });
 
         } catch (e) {
@@ -118,13 +114,12 @@ function rollDiceHelper(diceString, advantage) {
         if (modifierSign === '-') total -= modifierValue;
 
         const modifierText = modifierValue ? ` ${modifierSign} ${modifierValue}` : "";
-        const advText = (advantage === 'adv') ? "Advantage" : "Disadvantage";
+        const advText = (advantage === 'adv') ? "(Adv)" : "(Dis)";
         
-        // (ใหม่!) คืนค่าเป็น Object
         return {
-            title: `🎲 ทอย ${advText} ${diceString}`,
-            description: `ผลลัพธ์: [${roll1}, ${roll2}] (เลือก: ${chosenRoll})${modifierText}`,
-            total: `${total}` // แปลงเป็น String
+            title: `<:dice:1436248045766578320> ผลการทอย ${advText} ${diceString}`,
+            description: `ผลลัพธ์: \`${roll1}, ${roll2}\` (เลือก: **${chosenRoll}**) ${modifierText}`,
+            total: `${total}`
         };
 
     // กรณีที่ 2: ทอยปกติ
