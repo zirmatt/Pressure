@@ -65,7 +65,7 @@ client.on('interactionCreate', async interaction => {
                 .setFooter({ text: `ทอยโดย ${interaction.member.displayName}` });
 
             await interaction.reply({
-                content: `<@${interaction.user.id}>`,
+                content: `<:tpdice:1436248045766578320> <@${interaction.user.id}>`,
                 embeds: [rollEmbed]
             });
 
@@ -138,7 +138,7 @@ function rollDiceHelper(diceString, advantage) {
 
         // (ใหม่!) คืนค่าเป็น Object
         return {
-            title: `🎲 ทอย ${diceString}`,
+            title: `<:tpdice:1436248045766578320> ทอย ${diceString}`,
             description: `รายละเอียด: ${rollsText}${modifierText}`,
             total: `${total}` // แปลงเป็น String
         };
