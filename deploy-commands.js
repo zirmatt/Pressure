@@ -15,8 +15,8 @@ const commands = [
                 .setDescription('ทอยแบบได้เปรียบ (adv) หรือเสียเปรียบ (dis)')
                 .setRequired(false)
                 .addChoices(
-                    { name: 'Advantage (adv)', value: 'adv' },
-                    { name: 'Disadvantage (dis)', value: 'dis' }
+                    { name: 'adv', value: 'adv' },
+                    { name: 'dis', value: 'dis' }
                 ))
 ]
     .map(command => command.toJSON());

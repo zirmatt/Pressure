@@ -37,10 +37,11 @@ client.on('interactionCreate', async interaction => {
 
             // (ใหม่!) สร้างข้อความ Text ธรรมดาที่แก้ไขง่าย
             const replyLines = [
-                `<@${interaction.user.id}> ทอยโดย ${interaction.member.displayName}:`,
-                `> ${result.title}`,
-                `> ${result.description}`,
-                `> **ผลลัพธ์: \`${result.total}\`**`
+                `-# _ _`,
+                `-# ผลการทอย <@${interaction.user.id}>`
+                `→ ${result.description}`,
+                `# <a:tpdice:1436248045766578320> ทอยได้ \`${result.total}\``,
+                `-# _ _`
             ];
 
             // รวมทุกบรรทัด (ใช้ .join('\n') เพื่อขึ้นบรรทัดใหม่)
@@ -98,7 +99,7 @@ function rollDiceHelper(diceString, advantage) {
         const advText = (advantage === 'adv') ? "(Adv)" : "(Dis)";
         
         return {
-            title: `<a:tpdice:1436248045766578320> ทอย ${diceString} ${advText}`,
+            title: `-# ผลทอย ${diceString} ${advText}`,
             description: `**ผลการทอย** : ${roll1}, ${roll2} (เลือก: **${chosenRoll}**) ${modifierText}`,
             total: `${total}`
         };
