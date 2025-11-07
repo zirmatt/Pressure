@@ -58,7 +58,7 @@ client.on('interactionCreate', async interaction => {
                 .setTitle(result.title)
                 // (จุดที่ 1: แก้ไขบรรทัดนี้)
                 .setDescription(
-                    `${result.description}\n\n\n ผลลัพธ์ \`\`\`${result.total}\`\`\` ` // <-- เอา total มาต่อท้ายตรงนี้
+                    `${result.description}\n\n ผลลัพธ์ \`\`\`${result.total}\`\`\` ` // <-- เอา total มาต่อท้ายตรงนี้
                 )
                 // (จุดที่ 2: ลบบรรทัด .addFields() ทิ้งไปเลย)
                 .setTimestamp()
@@ -117,7 +117,7 @@ function rollDiceHelper(diceString, advantage) {
         const advText = (advantage === 'adv') ? "(Adv)" : "(Dis)";
         
         return {
-            title: `<a:tpdice:1436248045766578320> ผลการทอย ${advText} ${diceString}`,
+            title: `<a:tpdice:1436248045766578320> ทอย ${diceString} ${advText}`,
             description: `ผลการทอย : ${roll1}, ${roll2} (เลือก: **${chosenRoll}**) ${modifierText}`,
             total: `${total}`
         };
