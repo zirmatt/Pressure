@@ -117,7 +117,7 @@ function rollDiceHelper(diceString, advantage) {
         const advText = (advantage === 'adv') ? "(Adv)" : "(Dis)";
         
         return {
-            title: `<:tpdice:1436248045766578320> ผลการทอย ${advText} ${diceString}`,
+            title: `<a:tpdice:1436248045766578320> ผลการทอย ${advText} ${diceString}`,
             description: `ผลลัพธ์: ${roll1}, ${roll2} (เลือก: **${chosenRoll}**) ${modifierText}`,
             total: `${total}`
         };
@@ -138,7 +138,7 @@ function rollDiceHelper(diceString, advantage) {
 
         // (ใหม่!) คืนค่าเป็น Object
         return {
-            title: `<:tpdice:1436248045766578320> ทอย ${diceString}`,
+            title: `<a:tpdice:1436248045766578320> ทอย ${diceString}`,
             description: `รายละเอียด: ${rollsText}${modifierText}`,
             total: `${total}` // แปลงเป็น String
         };
