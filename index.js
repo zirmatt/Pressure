@@ -1,4 +1,5 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+// (ใหม่!) เพิ่ม Events และ InteractionResponseFlags
+const { Client, GatewayIntentBits, Events, InteractionResponseFlags } = require('discord.js');
 
 const client = new Client({
     intents: [
@@ -15,9 +16,14 @@ if (!BOT_TOKEN) {
     process.exit(1); 
 }
 
-client.once('ready', () => {
-    console.log(`บอท ${client.user.tag} ออนไลน์แล้ว! (พร้อมรับ Slash Commands)`);
+// =======================================================
+// (ปรับปรุง!) แก้ 'ready' เป็น Events.ClientReady
+// =======================================================
+client.once(Events.ClientReady, () => {
+    // เราไม่จำเป็นต้องใช้ client.user.tag ที่นี่ก็ได้ เพราะมันอาจจะยังไม่พร้อม
+    console.log(`บอทออนไลน์แล้ว! (พร้อมรับ Slash Commands)`);
 });
+
 
 // =======================================================
 // (อัปเกรด!) ส่วนรับคำสั่ง / (Slash Commands)
@@ -27,13 +33,11 @@ client.on('interactionCreate', async interaction => {
 
     const { commandName } = interaction;
 
-    // ----- (อัปเกรด!) คำสั่ง /roll (แบบ Text) -----
     if (commandName === 'roll') {
         const diceString = interaction.options.getString('dice');
         const advantage = interaction.options.getString('advantage'); 
 
         try {
-            // Helper ยังทำงานเหมือนเดิม (คืนค่าเป็น Object)
             const result = rollDiceHelper(diceString, advantage);
 
             const replyLines = [
@@ -44,16 +48,20 @@ client.on('interactionCreate', async interaction => {
                 `-# _ _`
             ];
 
-            // รวมทุกบรรทัด (ใช้ .join('\n') เพื่อขึ้นบรรทัดใหม่)
             const replyText = replyLines.join('\n');
 
-            // ตอบกลับเป็น Text ธรรมดา (ไม่มี Embed)
             await interaction.reply({
                 content: replyText
             });
 
         } catch (e) {
-            await interaction.reply({ content: `Error: ${e.message}`, ephemeral: true });
+            // =======================================================
+            // (ปรับปรุง!) แก้ ephemeral: true เป็น flags
+            // =======================================================
+            await interaction.reply({ 
+                content: `Error: ${e.message}`, 
+                flags: [InteractionResponseFlags.Ephemeral] // <-- แก้เป็นแบบนี้
+            });
         }
     }
 });
