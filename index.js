@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+// (ใหม่!) เพิ่ม EmbedBuilder เข้ามา
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const client = new Client({
@@ -20,9 +20,21 @@ client.once('ready', () => {
     console.log(`บอท ${client.user.tag} ออนไลน์แล้ว! (พร้อมรับ Slash Commands)`);
 });
 
+// =======================================================
+// ส่วนรับคำสั่ง !ping !pressure (แบบเก่า)
+// =======================================================
+client.on('messageCreate', message => {
+    if (message.author.bot) return;
+    if (message.content === '!ping') {
+        message.reply('Pong! (จาก !ping)');
+    }
+    if (message.content === '!pressure') {
+        message.reply('กิจกรรม "The Pressure" กำลังจะเริ่มขึ้น! (รันบน Railway 24/7)');
+    }
+});
 
 // =======================================================
-// ส่วนรับคำสั่ง / (Slash Commands)
+// (อัปเกรด!) ส่วนรับคำสั่ง / (Slash Commands)
 // =======================================================
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
@@ -34,10 +46,10 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply('Pong! (จาก /ping)');
     }
 
-    // ----- คำสั่ง /roll -----
+    // ----- (อัปเกรด!) คำสั่ง /roll -----
     if (commandName === 'roll') {
         const diceString = interaction.options.getString('dice');
-        const advantage = interaction.options.getString('advantage'); // จะเป็น 'adv', 'dis', หรือ null
+        const advantage = interaction.options.getString('advantage'); // 'adv', 'dis', หรือ null
 
         try {
             // 1. ให้ Helper ไปคำนวณมาก่อน (ตอนนี้มันจะคืนค่าเป็น Object)
@@ -62,7 +74,7 @@ client.on('interactionCreate', async interaction => {
             });
 
         } catch (e) {
-            // ถ้าใส่มามั่วๆ (เช่น 1d20adv)
+            // ถ้า Error ก็ตอบกลับไปแบบลับๆ (ephemeral)
             await interaction.reply({ content: `Error: ${e.message}`, ephemeral: true });
         }
     }

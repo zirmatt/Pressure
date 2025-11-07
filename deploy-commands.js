@@ -1,11 +1,11 @@
 const { REST, Routes, SlashCommandBuilder } = require('discord.js');
-const { clientId, botToken } = require('./config.json');
+const { clientId, botToken, guildId } = require('./config.json');
 
 const commands = [
     // --- คำสั่ง /roll ---
     new SlashCommandBuilder()
         .setName('roll')
-        .setDescription('ทอยลูกเต๋าสำหรับ The Pressure!')
+        .setDescription('ระบบทอยลูกเต๋า')
         .addStringOption(option =>
             option.setName('dice')
                 .setDescription('รูปแบบลูกเต๋า (เช่น 1d20, 2d6+5)')
@@ -34,7 +34,7 @@ const rest = new REST({ version: '10' }).setToken(botToken);
 
         // เราลงทะเบียนคำสั่งกับ Discord
         await rest.put(
-            Routes.applicationCommands(clientId),
+            Routes.applicationGuildCommands(clientId, guildId),
             { body: commands },
         );
 
